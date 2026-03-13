@@ -15,16 +15,33 @@ function App() {
 
   useEffect(() => { fetchEntries(); fetchInsights(); }, []);
 
-  async function fetchEntries() {
+ async function fetchEntries() {
+  try {
     const res = await fetch(`${API}/${userId}`);
     const data = await res.json();
-    setEntries(data);
+
+    // ensure entries is always an array
+    if (Array.isArray(data)) {
+      setEntries(data);
+    } else {
+      console.error("API returned non-array:", data);
+      setEntries([]);
+    }
+  } catch (err) {
+    console.error("Fetch entries error:", err);
+    setEntries([]);
   }
+}
 
   async function fetchInsights() {
-    const res = await fetch(`${API}/insights/${userId}`);
-    const data = await res.json();
-    setInsights(data);
+    try {
+      const res = await fetch(`${API}/insights/${userId}`);
+      const data = await res.json();
+      setInsights(data);
+    } catch (err) {
+      console.error("Fetch insights error:", err);
+      setInsights(null);
+    }
   }
 
   async function handleSubmit() {
@@ -147,7 +164,7 @@ function App() {
       <div style={styles.card}>
         <h2 style={styles.h2}>📖 Previous Entries</h2>
         {entries.length === 0 && <p style={{ color: '#888' }}>No entries yet. Write your first one above!</p>}
-        {entries.map(entry => (
+        {Array.isArray(entries) && entries.map(entry => (
           <div key={entry.id} style={styles.entry}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>

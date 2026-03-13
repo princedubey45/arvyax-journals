@@ -164,9 +164,9 @@ router.post('/:entryId/analyze', async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to analyze entry' });
-  }
+  console.error("FETCH ENTRIES ERROR:", err);
+  res.status(500).json({ error: err.message });
+}
 });
 
 module.exports = router;

@@ -88,8 +88,14 @@ router.get('/insights/:userId', (req, res) => {
       .slice(0, 5);
 
     const recentKeywords = [...new Set(
-      recentEntries.flatMap(e => e.keywords ? JSON.parse(e.keywords) : [])
-    )].slice(0, 10);
+  recentEntries.flatMap(e => {
+    try {
+      return e.keywords ? JSON.parse(e.keywords) : [];
+    } catch {
+      return [];
+    }
+  })
+)].slice(0, 10);
 
     res.json({
       totalEntries: entries.length,
@@ -112,10 +118,26 @@ router.get('/:userId', (req, res) => {
       'SELECT * FROM journal_entries WHERE user_id = ? ORDER BY created_at DESC'
     ).all(req.params.userId);
 
-    const parsedRows = rows.map(row => ({
-      ...row,
-      keywords: row.keywords ? JSON.parse(row.keywords) : []
-    }));
+    const parsedRows = rows.map(row => {
+  let keywords = [];
+
+  try {
+    keywords = row.keywords ? JSON.parse(row.keywords) : [];
+  } catch (e) {
+    keywords = [];
+  }
+
+  return {
+    id: row.id,
+    userId: row.user_id,
+    ambience: row.ambience,
+    text: row.text,
+    emotion: row.emotion,
+    keywords,
+    summary: row.summary,
+    created_at: row.created_at
+  };
+});
 
     res.json(parsedRows);
 

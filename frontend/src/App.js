@@ -118,7 +118,7 @@ function App() {
           <h2 style={styles.h2}>📊 Insights</h2>
           <div style={styles.insights}>
             <div style={styles.insightBox}>
-              <div style={styles.insightVal}>{insights.totalEntries}</div>
+              <div style={styles.insightVal}>{insights?.totalEntries || 0}</div>
               <div style={styles.insightLabel}>Total Entries</div>
             </div>
             <div style={styles.insightBox}>
@@ -132,9 +132,11 @@ function App() {
             <div style={{ ...styles.insightBox, gridColumn: '1 / -1', textAlign: 'left' }}>
               <div style={styles.insightLabel}>Recent Keywords</div>
               <div style={{ marginTop: 6 }}>
-                {insights.recentKeywords.length > 0
-                  ? insights.recentKeywords.map(k => <span key={k} style={styles.tag}>{k}</span>)
-                  : <span style={{ color: '#aaa' }}>No keywords yet</span>}
+                {(insights?.recentKeywords || []).length > 0
+          ? (insights?.recentKeywords || []).map(k => (
+          <span key={k} style={styles.tag}>{k}</span>
+    ))
+  : <span style={{ color: '#aaa' }}>No keywords yet</span>}
               </div>
             </div>
           </div>
@@ -153,7 +155,7 @@ function App() {
                   {entry.ambience === 'forest' ? '🌲' : entry.ambience === 'ocean' ? '🌊' : '🏔️'} {entry.ambience}
                 </strong>
                 <span style={{ color: '#aaa', fontSize: 12, marginLeft: 8 }}>
-                  {new Date(entry.createdAt).toLocaleDateString()}
+                  {entry.created_at ? new Date(entry.created_at).toLocaleDateString() : ''}
                 </span>
               </div>
               <button
@@ -168,7 +170,9 @@ function App() {
             {entry.emotion && (
               <div style={{ marginTop: 6 }}>
                 <span style={styles.tag}>😊 {entry.emotion}</span>
-                {entry.keywords.map(k => <span key={k} style={styles.tag}>{k}</span>)}
+                {(entry.keywords || []).map(k => (
+                <span key={k} style={styles.tag}>{k}</span>
+                ))}
                 {entry.summary && <p style={{ color: '#555', fontSize: 13, margin: '6px 0 0' }}><em>{entry.summary}</em></p>}
               </div>
             )}

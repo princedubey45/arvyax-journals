@@ -1,5 +1,6 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
 const DB_PATH = path.join(__dirname, 'journal.db');
 
@@ -7,9 +8,19 @@ let db;
 
 function getDb() {
   if (!db) {
+    console.log("Using database at:", DB_PATH);
+
+    // ensure directory exists
+    const dir = path.dirname(DB_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
     db = new Database(DB_PATH);
+
     initSchema();
   }
+
   return db;
 }
 
@@ -28,6 +39,8 @@ function initSchema() {
 
     CREATE INDEX IF NOT EXISTS idx_user_id ON journal_entries(user_id);
   `);
+
+  console.log("Database schema initialized.");
 }
 
 module.exports = { getDb };

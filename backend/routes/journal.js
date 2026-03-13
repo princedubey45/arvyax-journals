@@ -106,25 +106,19 @@ router.get('/insights/:userId', (req, res) => {
 // GET /api/journal/:userId - Get all entries for a user (AFTER specific routes)
 router.get('/:userId', (req, res) => {
   try {
-    const { userId } = req.params;
     const db = getDb();
 
-    const entries = db.prepare(
+    const rows = db.prepare(
       'SELECT * FROM journal_entries WHERE user_id = ? ORDER BY created_at DESC'
-    ).all(userId);
+    ).all(req.params.userId);
 
-    const formatted = entries.map(e => ({
-      id: e.id,
-      userId: e.user_id,
-      ambience: e.ambience,
-      text: e.text,
-      emotion: e.emotion,
-      keywords: e.keywords ? JSON.parse(e.keywords) : [],
-      summary: e.summary,
-      createdAt: e.created_at
+    const parsedRows = rows.map(row => ({
+      ...row,
+      keywords: row.keywords ? JSON.parse(row.keywords) : []
     }));
 
-    res.json(formatted);
+    res.json(parsedRows);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch entries' });
